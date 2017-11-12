@@ -222,7 +222,7 @@ def appflowdisplay(time1,time2):
     return lists[0],templist,traffic_key_list,traffic_value_list,timedisplay
 
 def protodisplay(time1,time2):
-    num_of_nodes = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor;",None)[0][0]
+    num_of_nodes = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor;",None)[0][0]#当前NetMonitor表里所有不重复的节点总数
     http_set = selectall(time1,time2,"NetMonitor")
     # 本轮上报个数
     lasttime = DATABASE.my_db_execute("select currenttime from NetMonitor where currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(time1, time2))
@@ -231,6 +231,8 @@ def protodisplay(time1,time2):
         real_start_time = real_end_time - 10 * 60
         rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
         rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+        print rstart_time
+        print rend_time
         post = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor where currenttime >= ? and currenttime <= ?;",(rstart_time, rend_time))[0][0]
         thispostrate = round((float(post)/len(http_set[0])), 4) * 100
     else:
@@ -238,7 +240,7 @@ def protodisplay(time1,time2):
         thispostrate = "?"
     # 根据调度计算所选时间段内轮数
     rounds = countrounds(time1,time2)
-    # print rounds
+    print rounds
     if rounds:
         allposts = DATABASE.my_db_execute("select count(*) from NetMonitor where currenttime >= ? and currenttime <= ?;",(time1, time2))[0][0]
         if num_of_nodes:
@@ -248,6 +250,7 @@ def protodisplay(time1,time2):
     else:
         postrate = "?"
     timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    #print timedisplay
     return num_of_nodes,postrate,post,thispostrate,http_set[0],http_set[1],timedisplay
 
 def nodesearch_display(time1,time2,node):
@@ -323,9 +326,11 @@ def node_time_display(time1,time2,db,node):
     return lists,timedisplay
 
 def selectall(time1,time2,db):
-    data = DATABASE.my_db_execute("select * from " + db + " where currenttime >= ? and currenttime <= ?;",(time1, time2))
+    data = DATABASE.my_db_execute("select * from " + db + " where currenttime >= ? and currenttime <= ?;",(time1, time2))#从名为db的表里取出所有的表项
     data_dict = topo_statistic(data)
-    data_dict = sorted(data_dict.iteritems(), key=lambda d:d[1], reverse=True)
+    #print data_dict
+    data_dict = sorted(data_dict.iteritems(), key=lambda d:d[1], reverse=True)#降序
+    #print data_dict
     data_key_list = list()
     data_value_list = list()
     count=0
@@ -337,6 +342,9 @@ def selectall(time1,time2,db):
             data_key_list.append(key.encode('UTF-8')+'     ')
         data_value_list.append(value)
     timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    #print data_key_list #['008e     ', '021c', '007d     ', '0108'] 一个列表，存放节点ID，奇数项后面的空格？？
+    #print data_value_list#[1, 1, 1, 1]一个列表，存放对应节点ID出现的次数，即对应节点上报个数`
+    #print timedisplay#"2017-10-17 00:00:00 - 2017-10-17 23:59:00"选取的时间段
     return data_key_list,data_value_list,timedisplay
 
 def topo_display(time1,time2):

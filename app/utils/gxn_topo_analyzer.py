@@ -7,7 +7,7 @@ import collections
 from gxn_get_sys_config import Config
 
 #http/https协议统计
-def topo_statistic(TOPODATA):
+def topo_statistic(TOPODATA):#新建一个字典，节点ID：出现次数
     nodes_dict = dict()
     for item in TOPODATA:
         ID= item[1] #ID

@@ -43,7 +43,8 @@ DATABASE   =DBClass()
 
 NODE_DICT_NET=dict()
 NODE_SET=set()
- 
+global SHEDULING_NOW
+SHEDULING_NOW = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 COUNTER=0
 #--------------------------------------------------------首页，上传---------------------------------------------
 #首页
@@ -657,8 +658,8 @@ def instruction_send():
         # addrlist.append(nodeip)
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
-    sendins.TCP_send(ins)
-    #print ins
+    #sendins.TCP_send(ins)
+    print ins   #{"type": "mcast", "pama_data": "80105BFE5916"}
     return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_write/', methods=['POST', 'GET'])
@@ -700,8 +701,8 @@ def instruction_write():
         # addrlist.append(nodeip)
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
-    # print ins
-    sendins.TCP_send(ins)
+    print ins      #{"type": "mcast", "pama_data": "82105BFE5916"}
+    #sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 @app.route('/instruction_restart/', methods=['POST', 'GET'])
 @app.route('/instruction_restart', methods=['POST', 'GET'])
@@ -810,9 +811,83 @@ def instruction_QueryWakeUp():
         # addrlist.append(nodeip)
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
-    #print ins
-    sendins.TCP_send(ins)
+    print ins         #{"addrList": [], "type": "mcast_ack", "pama_data": "C4"}
+    #sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
+
+
+
+
+
+
+
+
+
+
+########################################################################################
+@app.route('/debug_mode/', methods=['POST', 'GET'])
+@app.route('/debug_mode', methods=['POST', 'GET'])
+#进入调试模式  即发送一个全开的调度
+def debug_mode():
+    sendins = Connect()
+    dicts = {}                            #[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    dicts["pama_data"] = {"itype": 42, "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]}
+    if request.method == 'POST':
+        transmit_type = request.form['mySelect4']
+        nodeip = request.form.getlist('NodeIP4')
+    dicts["type"] = transmit_type
+    if (transmit_type=="mcast"):
+        ins = json.dumps(dicts)
+    else:
+        # addrlist = []
+        # addrlist.append(nodeip)
+        dicts["addrList"] = nodeip
+        ins = json.dumps(dicts)
+    print ins         #{"addrList": [], "type": "mcast_ack", "pama_data": "C4"}
+    #sendins.TCP_send(ins)
+    return render_template('./client/monitor.html',display_datadict=None)
+
+
+@app.route('/quit_debug_mode/', methods=['POST', 'GET'])
+@app.route('/quit_debug_mode', methods=['POST', 'GET'])
+#退出调试模式  即恢复原先的调度
+def quit_debug_mode():
+    sendins = Connect()
+    dicts = {}   
+    shedule_old = []   
+    file = open("shedule_now.txt","r")                      #[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    print "ada"
+    for line in file:
+        f = line.split(",")
+        f.pop()
+        for i in f:
+            shedule_old.append(int(i))
+        print shedule_old
+
+    #print shedule_old
+    dicts["pama_data"] = {"itype": 42, "bitmap": shedule_old}
+    if request.method == 'POST':
+        transmit_type = request.form['mySelect4']
+        nodeip = request.form.getlist('NodeIP4')
+    dicts["type"] = transmit_type
+    if (transmit_type=="mcast"):
+        ins = json.dumps(dicts)
+    else:
+        # addrlist = []
+        # addrlist.append(nodeip)
+        dicts["addrList"] = nodeip
+        ins = json.dumps(dicts)
+    print ins         #{"addrList": [], "type": "mcast_ack", "pama_data": "C4"}
+    #sendins.TCP_send(ins)
+
+    return render_template('./client/monitor.html',display_datadict=None)
+##########################################################################################
+
+
+
+
+
+
 
 
 @app.route('/instruction3/', methods=['POST', 'GET'])
@@ -974,6 +1049,11 @@ def recommend_schedule4():
         syn_config.recommend_schedule4()
     return "2"
 
+
+
+
+#################################################################################
+
     
 @app.route('/update_schedule/',methods=['POST', 'GET'])
 def update_schedule():
@@ -988,16 +1068,23 @@ def update_schedule():
             bitmap_array = [0]*18
         syn_config.set_SynBitMap(bitmap_array)
         config_dict =syn_config.get_New_Synconfig()
+        print config_dict
         period = data['p']
         config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
+        print config_dict["bitmap"]
+        file = open('shedule_now.txt','w')
+        for i in config_dict["bitmap"]:
+            file.write(str(i))
+            file.write(',')
+        
         if period:
             syn_config.get_syn_period(period)
             # config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
             senddicts["pama_data"] = config_dict
             senddicts["type"] = "pama_syn"
             update_synperiod_ins = json.dumps(senddicts)
-            sendins.TCP_send(update_synperiod_ins)
-            #print update_synperiod_ins
+            #sendins.TCP_send(update_synperiod_ins)
+            print update_synperiod_ins
         else:
             bitmaplist = config_dict["bitmap"]
             subkey = ['minute', 'seqNum', 'level', 'bitmap', 'second', 'hour']
@@ -1006,13 +1093,22 @@ def update_schedule():
             senddicts["type"] = "schedule"
             update_schedule_ins = json.dumps(senddicts)
             config_dict["bitmap"] = bitmaplist
-            sendins.TCP_send(update_schedule_ins)  
-            #print update_schedule_ins
+            #sendins.TCP_send(update_schedule_ins)  
+            print update_schedule_ins   #{"type": "schedule", "pama_data": {"hour": "14", "level": 0, "seqNum": 17, "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], "second": "29", "minute": "33"}}
     l=syn_config.get_active_list()
     dicts={'lists':l}
     lists= json.dumps(dicts)
 
     return render_template('./client/scheduling.html',scheduleNow=lists)
+##################################################################################
+
+
+
+
+
+
+
+
 
 #上报监测控制
 @app.route('/sendmonitor/', methods=['POST', 'GET'])
@@ -1146,7 +1242,7 @@ def protoanalyzer():
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-        data = protodisplay(previous_time,current_time)
+        data = protodisplay(previous_time,current_time)                         #protodisplay函数返回值依次是: num_of_nodes,postrate,post,thispostrate,http_set[0],http_set[1],timedisplay
         return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=data[0],postrate=data[1] ,post=data[2], thispostrate=data[3] , http_key=data[4], http_value=data[5] ,nodecount=len(data[4]),time=data[6])
 
 @app.route('/topo_time/', methods=['POST', 'GET'])

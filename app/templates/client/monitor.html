@@ -109,6 +109,8 @@ function check5(object)
                         <li><a href="#section-underline-6"><span>设定根节点校时周期</span></a></li>
                         <li><a href="#section-underline-7"><span>唤醒</span></a></li>
                         <li><a href="#section-underline-8"><span>唤醒查询</span></a></li>
+                        <li><a href="#section-underline-9"><span>调试模式</span></a></li>
+                        <li><a href="#section-underline-10"><span>退出调试模式</span></a></li>
                     </ul>
                 </nav>
                 <div class="content-wrap">
@@ -373,6 +375,76 @@ function check5(object)
                             <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
                      　<button style="height:40px; font-size:19px" type="submit" class="btn btn-success">唤醒查询指令下发
+                     </button>
+                        <div id="ipselect4" style="display: none"> 
+                        <label>节点选择:(最多选择5项)</label>
+                        <form id="nodeIP4" name="nodeIP4" class="form-horizontal" role="form" onchange="check(this)">
+                            <div style="height:400px;width:300px; margin:0 auto;">
+                            <div class="col-lg-10">
+                                <select class="selectpicker show-menu-arrow form-control" multiple data-max-options="5" name="NodeIP4">
+                                {% for item in IP_list: %}
+                                    <option>{{item}}</option>
+                                {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+                          </form>
+                        </div>
+                 　
+                        
+
+                        
+
+                        </form>
+                        <iframe id="iframe4" name="iframe4" style="display:none;"></iframe> 
+
+                    </section>
+
+                    <section id="section-underline-9">
+                        <form name="instruction_restart" target="iframe4" method="POST" action='{{url_for('debug_mode')}}'>
+                       <hr>
+                 
+
+                        <select style="height:41px; font-size:19px" id="mySelect4" name="mySelect4" onchange="check4(this)">
+                            <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
+                            <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
+                        </select>
+                     　<button style="height:40px; font-size:19px" type="submit" class="btn btn-success">调试模式
+                     </button>
+                        <div id="ipselect4" style="display: none"> 
+                        <label>节点选择:(最多选择5项)</label>
+                        <form id="nodeIP4" name="nodeIP4" class="form-horizontal" role="form" onchange="check(this)">
+                            <div style="height:400px;width:300px; margin:0 auto;">
+                            <div class="col-lg-10">
+                                <select class="selectpicker show-menu-arrow form-control" multiple data-max-options="5" name="NodeIP4">
+                                {% for item in IP_list: %}
+                                    <option>{{item}}</option>
+                                {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+                          </form>
+                        </div>
+                 　
+                        
+
+                        
+
+                        </form>
+                        <iframe id="iframe4" name="iframe4" style="display:none;"></iframe> 
+
+                    </section>
+
+                    <section id="section-underline-10">
+                        <form name="instruction_restart" target="iframe4" method="POST" action='{{url_for('quit_debug_mode')}}'>
+                       <hr>
+                 
+
+                        <select style="height:41px; font-size:19px" id="mySelect4" name="mySelect4" onchange="check4(this)">
+                            <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
+                            <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
+                        </select>
+                     　<button style="height:40px; font-size:19px" type="submit" class="btn btn-success">退出调试模式
                      </button>
                         <div id="ipselect4" style="display: none"> 
                         <label>节点选择:(最多选择5项)</label>
