@@ -1038,7 +1038,7 @@ def auto_on_off_valve():
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
     print ins      
-    sendins.TCP_send(ins)
+    #sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/force_open_valve/', methods=['POST', 'GET'])
@@ -1084,7 +1084,7 @@ def force_open_valve():
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
     print ins      
-    sendins.TCP_send(ins)
+    #sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/force_close_valve/', methods=['POST', 'GET'])
@@ -1131,7 +1131,7 @@ def force_close_valve():
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
     print ins      
-    sendins.TCP_send(ins)
+    #sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 ##########################################################################################
 
