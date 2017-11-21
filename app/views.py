@@ -25,6 +25,7 @@ import socket
 import json
 import math
 import hashlib
+import string
 
 #导入函数到模板中
 app.jinja_env.globals['enumerate'] = enumerate
@@ -601,6 +602,58 @@ def app_data():
 @app.route('/monitor/', methods=['POST', 'GET'])
 @app.route('/monitor', methods=['POST', 'GET'])
 def monitor():
+################################################3
+    file = open("shedule_now.txt","r")                      #[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    print "ada"
+    bitmap = []
+    for line in file:
+        f = line.split(",")
+        f.pop()
+        for i in f:
+            bitmap.append(int(i))
+        #print bitmap
+
+    bitbitmap = [0]*144
+    for i in range (0, 18):
+        temp = bitmap[i]
+        eight = []
+        print temp
+        for j in range (0, 8):
+            eight.append(temp & 1)
+            temp = temp >> 1
+            bitbitmap[8 * i + 7 - j] = eight.pop()
+        print eight
+
+    print bitbitmap
+
+
+    now_time = datetime.datetime.now()
+    now_second = now_time.second
+    now_minute = now_time.minute
+    now_hour = now_time.hour
+    print now_time, now_hour, now_minute, now_second
+
+    count = now_hour*6+now_minute/10
+
+    print "第",count+1,"个"
+    if (bitbitmap[count]==1):
+        flag = 1
+    else:
+        flag = 0
+    print flag
+    #flag = 1
+    if (flag == 0):   #说明处于非活跃周期
+        wait_time = now_minute/10 + 1
+        if (wait_time == 6):
+            wait_time =0
+            now_hour = (now_hour + 1) % 24
+        print "当前处于非活跃期，还需要等待%d秒" % wait_time
+    else:
+        wait_time = now_minute/10
+        print "当前处于活跃期，不需要等待"
+    
+#############################################
+
     LOGIN = loginjudge()
     if LOGIN.getPCAPS() == "False":
         flash(u"请完成认证登陆!")
