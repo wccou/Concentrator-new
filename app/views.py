@@ -602,7 +602,7 @@ def app_data():
 @app.route('/monitor/', methods=['POST', 'GET'])
 @app.route('/monitor', methods=['POST', 'GET'])
 def monitor():
-################################################3
+################################################3  将当前调度缓存并依 据bitmap判断当前是否活跃期
     file = open("shedule_now.txt","r")                      #[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
     print "ada"
     bitmap = []
