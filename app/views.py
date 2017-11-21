@@ -662,6 +662,9 @@ def monitor():
         display = Display()
         send_data = display.send_display() #旧数据展示
         write_data = display.write_display()
+        auto_on_off_valve = display.auto_on_off_valve()
+        force_open_valve = display.force_open_valve()
+        force_close_valve = display.force_close_valve()
         adjtime_data = display.adjtime_display()
         display_datadict = display.parameters_display()
         # print display_datadict
@@ -669,8 +672,10 @@ def monitor():
         IP_set = DATABASE.my_db_execute(("select distinct IP from NodePlace;"),None)
         for item in IP_set:
             IP_list.append(item[0])
-
-    return render_template('./client/monitor.html',send_data = send_data, write_data = write_data, adjtime_data = adjtime_data, display_datadict = display_datadict,IP_list=IP_list)
+    print auto_on_off_valve
+    print force_open_valve
+    print force_close_valve
+    return render_template('./client/monitor.html',send_data = send_data, wait_time = wait_time*10,now_hour = now_hour,write_data = write_data, auto_on_off_valve = auto_on_off_valve, force_open_valve = force_open_valve, force_close_valve = force_close_valve, adjtime_data = adjtime_data, display_datadict = display_datadict,IP_list=IP_list)
 
 @app.route('/instruction_send/', methods=['POST', 'GET'])
 @app.route('/instruction_send', methods=['POST', 'GET'])
@@ -727,6 +732,8 @@ def instruction_write():
     dicts = {}
     if request.method == 'POST':
         recvdata = request.form['write_data']
+        print "111"
+        print recvdata
         if recvdata:
             modify.write_modify(recvdata)
             if (len(recvdata)%2 != 0):
@@ -743,6 +750,8 @@ def instruction_write():
 
     if datalength:
         datalist.append(datalength)
+
+    print recvdata
     datalist.append(recvdata)
     data = ''.join(datalist)
     dicts["type"] = transmit_type
@@ -797,7 +806,7 @@ def instruction_reset():
         # addrlist.append(nodeip)
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
-    
+    print ins
     sendins.TCP_send(ins)
     # print ins
     return render_template('./client/monitor.html',display_datadict=None)
@@ -819,7 +828,7 @@ def instruction_adjtime():
     dicts["pama_data"] = recvdata
     dicts["type"] = "pama_corr"
     ins = json.dumps(dicts)
-    
+    print ins
     sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
@@ -832,8 +841,8 @@ def instruction_WakeUp():
     dicts = {}
     dicts["pama_data"] = "C3"
     if request.method == 'POST':
-        transmit_type = request.form['mySelect4']
-        nodeip = request.form.getlist('NodeIP4')
+        transmit_type = request.form['mySelect7']
+        nodeip = request.form.getlist('NodeIP7')
     dicts["type"] = transmit_type
     if (transmit_type=="mcast"):
         ins = json.dumps(dicts)
@@ -842,7 +851,7 @@ def instruction_WakeUp():
         # addrlist.append(nodeip)
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
-    #print ins
+    print ins
     sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
@@ -854,8 +863,8 @@ def instruction_QueryWakeUp():
     dicts = {}
     dicts["pama_data"] = "C4"
     if request.method == 'POST':
-        transmit_type = request.form['mySelect4']
-        nodeip = request.form.getlist('NodeIP4')
+        transmit_type = request.form['mySelect8']
+        nodeip = request.form.getlist('NodeIP8')
     dicts["type"] = transmit_type
     if (transmit_type=="mcast"):
         ins = json.dumps(dicts)
@@ -882,14 +891,61 @@ def instruction_QueryWakeUp():
 @app.route('/debug_mode', methods=['POST', 'GET'])
 #进入调试模式  即发送一个全开的调度
 def debug_mode():
+
+
+    file = open("shedule_now.txt","r")                      #[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    print "ada"
+    bitmap = []
+    for line in file:
+        f = line.split(",")
+        f.pop()
+        for i in f:
+            bitmap.append(int(i))
+        #print bitmap
+
+    bitbitmap = [0]*144
+    for i in range (0, 18):
+        temp = bitmap[i]
+        eight = []
+        print temp
+        for j in range (0, 8):
+            eight.append(temp & 1)
+            temp = temp >> 1
+            bitbitmap[8 * i + 7 - j] = eight.pop()
+        print eight
+
+    print bitbitmap
+
+
+    now_time = datetime.datetime.now()
+    now_second = now_time.second
+    now_minute = now_time.minute
+    now_hour = now_time.hour
+    print now_time, now_hour, now_minute, now_second
+
+    count = now_hour*6+now_minute/10
+
+    print "第",count+1,"个"
+    if (bitbitmap[count]==1):
+        flag = 1
+    else:
+        flag = 0
+    print flag
+    if (flag == 0):   #说明处于非活跃周期
+        wait_time = 630 - now_minute/10 * 60 - now_second
+        print "当前处于非活跃期，还需要等待%d秒" % wait_time
+    else:
+        wait_time = 0
+        print "当前处于活跃期，不需要等待"
     sendins = Connect()
     dicts = {}                            #[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
     dicts["pama_data"] = {"itype": 42, "bitmap": [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]}
     if request.method == 'POST':
-        transmit_type = request.form['mySelect4']
-        nodeip = request.form.getlist('NodeIP4')
-    dicts["type"] = transmit_type
-    if (transmit_type=="mcast"):
+        transmit_type = request.form['mySelect9']
+        nodeip = request.form.getlist('NodeIP9')
+    dicts["type"] = "debug"
+    #print transmit_type
+    if (transmit_type=="mcast" or transmit_type=="mcast_ack"):
         ins = json.dumps(dicts)
     else:
         # addrlist = []
@@ -897,8 +953,11 @@ def debug_mode():
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
     print ins         #{"addrList": [], "type": "mcast_ack", "pama_data": "C4"}
-    #sendins.TCP_send(ins)
-    return render_template('./client/monitor.html',display_datadict=None)
+    sendins.TCP_send(ins)
+    mywait_time = wait_time
+    print mywait_time
+
+    return render_template('./client/monitor.html',waiting_time = mywait_time, display_datadict=None)
 
 
 @app.route('/quit_debug_mode/', methods=['POST', 'GET'])
@@ -920,10 +979,10 @@ def quit_debug_mode():
     #print shedule_old
     dicts["pama_data"] = {"itype": 42, "bitmap": shedule_old}
     if request.method == 'POST':
-        transmit_type = request.form['mySelect4']
-        nodeip = request.form.getlist('NodeIP4')
-    dicts["type"] = transmit_type
-    if (transmit_type=="mcast"):
+        transmit_type = request.form['mySelect10']
+        nodeip = request.form.getlist('NodeIP10')
+    dicts["type"] = "debug"
+    if (transmit_type=="mcast" or transmit_type=="mcast_ack"):
         ins = json.dumps(dicts)
     else:
         # addrlist = []
@@ -931,8 +990,148 @@ def quit_debug_mode():
         dicts["addrList"] = nodeip
         ins = json.dumps(dicts)
     print ins         #{"addrList": [], "type": "mcast_ack", "pama_data": "C4"}
-    #sendins.TCP_send(ins)
+    sendins.TCP_send(ins)
 
+    return render_template('./client/monitor.html',display_datadict=None)
+
+@app.route('/auto_on_off_valve/', methods=['POST', 'GET'])
+@app.route('/auto_on_off_valve', methods=['POST', 'GET'])
+#自动开关阀
+def auto_on_off_valve():
+    modify = Modify() #将新配置数据写入配置文件
+    sendins = Connect()
+    datalist = []
+    datalist.append("83")
+    datalength = ""
+    dicts = {}
+    if request.method == 'POST':
+        recvdata = request.form['auto_on_off_valve']
+        #recvdata = "680808685301510F810010004516"
+        print "000",recvdata
+        if recvdata:
+            modify.auto_modify(recvdata)
+            if (len(recvdata)%2 != 0):
+                recvdata = "0"+recvdata
+            if (len(recvdata)<32):
+                datalength = "0"+hex(len(recvdata)/2)[2:]
+            else:
+                datalength = hex(len(recvdata))[2:]
+        else:
+            display = Display()
+            recvdata = display.auto_on_off_valve() #旧数据
+        transmit_type = request.form['mySelect11']
+        nodeip = request.form.getlist('NodeIP11')
+
+    if datalength:
+        datalist.append(datalength)
+    datalist.append(recvdata)
+    data = ''.join(datalist)
+    dicts["type"] = transmit_type
+    dicts["pama_data"] = data
+    if (transmit_type=="mcast" or transmit_type=="mcast_ack"):
+        dicts["addrList"] = []
+        ins = json.dumps(dicts)
+        print ins
+    else:
+        # addrlist = []
+        # addrlist.append(nodeip)
+        dicts["addrList"] = nodeip
+        ins = json.dumps(dicts)
+    print ins      
+    sendins.TCP_send(ins)
+    return render_template('./client/monitor.html',display_datadict=None)
+
+@app.route('/force_open_valve/', methods=['POST', 'GET'])
+@app.route('/force_open_valve', methods=['POST', 'GET'])
+#强制开阀
+def force_open_valve():
+    modify = Modify() #将新配置数据写入配置文件
+    sendins = Connect()
+    datalist = []
+    datalist.append("84")
+    datalength = ""
+    dicts = {}
+    if request.method == 'POST':
+        recvdata = request.form['force_open_valve']
+        #recvdata = "680808685301510F810003003816"
+        print "000",recvdata
+        if recvdata:
+            modify.open_modify(recvdata)
+            if (len(recvdata)%2 != 0):
+                recvdata = "0"+recvdata
+            if (len(recvdata)<32):
+                datalength = "0"+hex(len(recvdata)/2)[2:]
+            else:
+                datalength = hex(len(recvdata))[2:]
+        else:
+            display = Display()
+            recvdata = display.force_open_valve() #旧数据
+        transmit_type = request.form['mySelect12']
+        nodeip = request.form.getlist('NodeIP12')
+
+    if datalength:
+        datalist.append(datalength)
+    datalist.append(recvdata)
+    data = ''.join(datalist)
+    dicts["type"] = transmit_type
+    dicts["pama_data"] = data
+    if (transmit_type=="mcast" or transmit_type=="mcast_ack"):
+        dicts["addrList"] = []
+        ins = json.dumps(dicts)
+    else:
+        # addrlist = []
+        # addrlist.append(nodeip)
+        dicts["addrList"] = nodeip
+        ins = json.dumps(dicts)
+    print ins      
+    sendins.TCP_send(ins)
+    return render_template('./client/monitor.html',display_datadict=None)
+
+@app.route('/force_close_valve/', methods=['POST', 'GET'])
+@app.route('/force_close_valve', methods=['POST', 'GET'])
+#强制关阀
+def force_close_valve():
+    modify = Modify() #将新配置数据写入配置文件
+    sendins = Connect()
+    datalist = []
+    datalist.append("85")
+    datalength = ""
+    dicts = {}
+    if request.method == 'POST':
+        recvdata = request.form['force_close_valve']
+        #recvdata = "680808685301510F810002003716"
+        print "000",recvdata
+        if recvdata:
+            modify.close_modify(recvdata)
+            if (len(recvdata)%2 != 0):
+                recvdata = "0"+recvdata
+            if (len(recvdata)<32):
+                datalength = "0"+hex(len(recvdata)/2)[2:]
+            else:
+                datalength = hex(len(recvdata))[2:]
+        else:
+            display = Display()
+            recvdata = display.force_close_valve() #旧数据
+        transmit_type = request.form['mySelect13']
+        nodeip = request.form.getlist('NodeIP13')
+
+    if datalength:
+        datalist.append(datalength)
+    datalist.append(recvdata)
+    data = ''.join(datalist)
+    dicts["type"] = transmit_type
+    dicts["pama_data"] = data
+    if (transmit_type=="mcast" or transmit_type=="mcast_ack"):
+        dicts["addrList"] = []
+        ins = json.dumps(dicts)
+
+    else:
+        # addrlist = []
+        # addrlist.append(nodeip)
+        dicts["addrList"] = nodeip
+        ins = json.dumps(dicts)
+    print ins      
+    sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 ##########################################################################################
 
