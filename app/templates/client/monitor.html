@@ -91,6 +91,104 @@ function check5(object)
     }
 }
 </script>
+<script type="text/javascript">
+function check7(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect7').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect7').style.display="none";
+    }
+}
+</script>
+<script type="text/javascript">
+function check8(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect8').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect8').style.display="none";
+    }
+}
+</script>
+<script type="text/javascript">
+function check9(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect9').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect9').style.display="none";
+    }
+}
+</script>
+<script type="text/javascript">
+function check10(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect10').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect10').style.display="none";
+    }
+}
+</script>
+<script type="text/javascript">
+function check11(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect11').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect11').style.display="none";
+    }
+}
+</script>
+<script type="text/javascript">
+function check12(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect12').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect12').style.display="none";
+    }
+}
+</script>
+<script type="text/javascript">
+function check13(object)
+{
+    var value = object.value;
+    if(value=="unicast_ack")
+    {
+        document.getElementById('ipselect13').style.display="block";
+    }
+    else if (value=="mcast_ack")
+    {
+        document.getElementById('ipselect13').style.display="none";
+    }
+}
+</script>
 </head>
 
 
@@ -111,7 +209,16 @@ function check5(object)
                         <li><a href="#section-underline-8"><span>唤醒查询</span></a></li>
                         <li><a href="#section-underline-9"><span>调试模式</span></a></li>
                         <li><a href="#section-underline-10"><span>退出调试模式</span></a></li>
+                      
                     </ul>
+                     <ul>
+                        <li><a href="#section-underline-11"><span>自动开关阀</span></a></li>
+
+                        <li><a href="#section-underline-12"><span>强制开阀</span></a></li>
+
+                        <li><a href="#section-underline-13"><span>强制关阀</span></a></li>
+                    </ul>
+
                 </nav>
                 <div class="content-wrap">
                     <section id="section-underline-1">
@@ -120,7 +227,7 @@ function check5(object)
 
                        <hr>
                        <div class="container">  
-                        <input  style="height:41px; font-size:19px" type="text" name="emit_data" placeholder={{send_data}}>
+                        <input  style="height:41px; font-size:19px" type="text" name="emit_data" placeholder={{send_data}}/>
                         <select style="height:41px; font-size:19px" id="mySelect"   name="mySelect" onchange="check(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast" >&nbsp;单&nbsp;播&nbsp;</option>
@@ -331,22 +438,22 @@ function check5(object)
                     </section>
 
                     <section id="section-underline-7">
-                        <form name="instruction_restart" target="iframe4" method="POST" action='{{url_for('instruction_WakeUp')}}'>
+                        <form name="instruction_WakeUp" target="iframe7" method="POST" action='{{url_for('instruction_WakeUp')}}'>
                        <hr>
                  
 
-                        <select style="height:41px; font-size:19px" id="mySelect4" name="mySelect4" onchange="check4(this)">
+                        <select style="height:41px; font-size:19px" id="mySelect7" name="mySelect7" onchange="check7(this)">
                             <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
                      　<button style="height:40px; font-size:19px" type="submit" class="btn btn-success">唤醒指令下发
                      </button>
-                        <div id="ipselect4" style="display: none"> 
+                        <div id="ipselect7" style="display: none"> 
                         <label>节点选择:(最多选择5项)</label>
-                        <form id="nodeIP4" name="nodeIP4" class="form-horizontal" role="form" onchange="check(this)">
+                        <form id="nodeIP7" name="nodeIP7" class="form-horizontal" role="form" onchange="check(this)">
                             <div style="height:400px;width:300px; margin:0 auto;">
                             <div class="col-lg-10">
-                                <select class="selectpicker show-menu-arrow form-control" multiple data-max-options="5" name="NodeIP4">
+                                <select class="selectpicker show-menu-arrow form-control" multiple data-max-options="5" name="NodeIP7">
                                 {% for item in IP_list: %}
                                     <option>{{item}}</option>
                                 {% endfor %}
@@ -355,33 +462,27 @@ function check5(object)
                             </div>
                           </form>
                         </div>
-                 　
-                        
-
-                        
-
                         </form>
-                        <iframe id="iframe4" name="iframe4" style="display:none;"></iframe> 
-
+                        <iframe id="iframe7" name="iframe7" style="display:none;"></iframe> 
                     </section>
 
                     <section id="section-underline-8">
-                        <form name="instruction_restart" target="iframe4" method="POST" action='{{url_for('instruction_QueryWakeUp')}}'>
+                        <form name="instruction_QueryWakeUp" target="iframe8" method="POST" action='{{url_for('instruction_QueryWakeUp')}}'>
                        <hr>
                  
 
-                        <select style="height:41px; font-size:19px" id="mySelect4" name="mySelect4" onchange="check4(this)">
+                        <select style="height:41px; font-size:19px" id="mySelect8" name="mySelect8" onchange="check8(this)">
                             <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
                      　<button style="height:40px; font-size:19px" type="submit" class="btn btn-success">唤醒查询指令下发
                      </button>
-                        <div id="ipselect4" style="display: none"> 
+                        <div id="ipselect8" style="display: none"> 
                         <label>节点选择:(最多选择5项)</label>
-                        <form id="nodeIP4" name="nodeIP4" class="form-horizontal" role="form" onchange="check(this)">
+                        <form id="nodeIP8" name="nodeIP8" class="form-horizontal" role="form" onchange="check(this)">
                             <div style="height:400px;width:300px; margin:0 auto;">
                             <div class="col-lg-10">
-                                <select class="selectpicker show-menu-arrow form-control" multiple data-max-options="5" name="NodeIP4">
+                                <select class="selectpicker show-menu-arrow form-control" multiple data-max-options="5" name="NodeIP8">
                                 {% for item in IP_list: %}
                                     <option>{{item}}</option>
                                 {% endfor %}
@@ -390,14 +491,8 @@ function check5(object)
                             </div>
                           </form>
                         </div>
-                 　
-                        
-
-                        
-
                         </form>
-                        <iframe id="iframe4" name="iframe4" style="display:none;"></iframe> 
-
+                        <iframe id="iframe8" name="iframe8" style="display:none;"></iframe> 
                     </section>
 
                     <section id="section-underline-9">
