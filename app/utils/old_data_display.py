@@ -19,6 +19,18 @@ class Display:
 		data = self.CONFIG_DICT['instruction_write']
 		return data
 
+	def auto_on_off_valve(self):
+		data = self.CONFIG_DICT['auto_on_off_valve']
+		return data
+
+	def force_open_valve(self):
+		data = self.CONFIG_DICT['force_open_valve']
+		return data
+
+	def force_close_valve(self):
+		data = self.CONFIG_DICT['force_close_valve']
+		return data
+
 	def adjtime_display(self):
 		data = self.CONFIG_DICT['instruction_adjtime']
 		return data
@@ -53,6 +65,18 @@ class Modify:
 
 	def write_modify(self, data):
 		self.CONFIG_DICT['instruction_write'] = data
+		self.write_config()
+
+	def auto_modify(self, data):
+		self.CONFIG_DICT['auto_on_off_valve'] = data
+		self.write_config()
+
+	def open_modify(self, data):
+		self.CONFIG_DICT['force_open_valve'] = data
+		self.write_config()
+
+	def close_modify(self, data):
+		self.CONFIG_DICT['force_close_valve'] = data
 		self.write_config()
 
 	def adjtime_modify(self, data):
